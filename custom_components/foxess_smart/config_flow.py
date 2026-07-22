@@ -26,32 +26,37 @@ class FoxESSSmartConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
         errors = {}
+        description_placeholders = {}
         if user_input is not None:
             # Validate connection in executor
-            success = await self.hass.async_add_executor_job(
-                self._test_connection,
-                user_input["host"],
-                user_input["port"],
-                user_input["slave_id"],
-            )
-            if success:
-                return self.async_create_entry(
-                    title=f"FoxESS H12 Smart ({user_input['host']})",
-                    data=user_input,
+            try:
+                success = await self.hass.async_add_executor_job(
+                    self._test_connection,
+                    user_input["host"],
+                    user_input["port"],
+                    user_input["slave_id"],
                 )
-            else:
-                errors["base"] = "cannot_connect"
+                if success:
+                    return self.async_create_entry(
+                        title=f"FoxESS H12 Smart ({user_input['host']})",
+                        data=user_input,
+                    )
+            except Exception as e:
+                errors["base"] = "connection_error"
+                description_placeholders = {"error_details": str(e)}
 
         return self.async_show_form(
-            step_id="user", data_schema=DATA_SCHEMA, errors=errors
+            step_id="user", 
+            data_schema=DATA_SCHEMA, 
+            errors=errors,
+            description_placeholders=description_placeholders
         )
 
     def _test_connection(self, host: str, port: int, slave: int) -> bool:
         """Test modbus connection by reading holding register 49203."""
         client = FoxESSModbusClient(host, port, slave)
-        try:
-            # Attempt to read work mode register as a test
-            regs = client.read_registers(49203, 1)
-            return len(regs) > 0
-        except Exception:
-            return False
+        # Attempt to read work mode register as a test
+        regs = client.read_registers(49203, 1)
+        if not regs:
+            raise Exception("No registers returned by inverter.")
+        return True

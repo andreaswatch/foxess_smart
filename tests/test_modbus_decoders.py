@@ -51,7 +51,7 @@ class TestFoxESSModbusClient(unittest.TestCase):
         self.assertEqual(regs, [100, 200])
         mock_instance.connect.assert_called_once()
         mock_instance.read_holding_registers.assert_called_once_with(
-            address=30001, count=2, device_id=247
+            address=30001, count=2, slave=247
         )
         mock_instance.close.assert_called_once()
 
@@ -85,7 +85,7 @@ class TestFoxESSModbusClient(unittest.TestCase):
 
         mock_instance.connect.assert_called_once()
         mock_instance.write_register.assert_called_once_with(
-            address=49203, value=1, device_id=247
+            address=49203, value=1, slave=247
         )
         mock_instance.close.assert_called_once()
 

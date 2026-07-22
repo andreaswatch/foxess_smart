@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to FoxESS H12 Smart",
+        "description": "Enter the connection details for your Modbus TCP inverter.",
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]",
+          "port": "[%key:common::config_flow::data::port%]",
+          "slave_id": "Modbus Device ID (Slave ID)",
+          "scan_interval": "Update Interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "connection_error": "Connection failed with error: {error_details}",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    }
+  }
+}

@@ -39,9 +39,16 @@ class FoxESSModbusClient:
         try:
             if not self.client.connected:
                 self.client.connect()
-            result = self.client.read_holding_registers(
-                address=address, count=count, device_id=self.slave
-            )
+            try:
+                # pymodbus < 3.x (and some older 3.x)
+                result = self.client.read_holding_registers(
+                    address=address, count=count, slave=self.slave
+                )
+            except TypeError:
+                # pymodbus >= 3.x
+                result = self.client.read_holding_registers(
+                    address=address, count=count, device_id=self.slave
+                )
             if result.isError():
                 raise Exception(f"Modbus error reading address {address}: {result}")
             return result.registers
@@ -53,9 +60,16 @@ class FoxESSModbusClient:
         try:
             if not self.client.connected:
                 self.client.connect()
-            result = self.client.write_register(
-                address=49203, value=value, device_id=self.slave
-            )
+            try:
+                # pymodbus < 3.x (and some older 3.x)
+                result = self.client.write_register(
+                    address=49203, value=value, slave=self.slave
+                )
+            except TypeError:
+                # pymodbus >= 3.x
+                result = self.client.write_register(
+                    address=49203, value=value, device_id=self.slave
+                )
             if result.isError():
                 raise Exception(f"Modbus error writing work mode {value}: {result}")
         finally:
