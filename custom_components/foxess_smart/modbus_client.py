@@ -40,7 +40,7 @@ class FoxESSModbusClient:
             if not self.client.connected:
                 self.client.connect()
             result = self.client.read_holding_registers(
-                address=address, count=count, slave=self.slave
+                address=address, count=count, device_id=self.slave
             )
             if result.isError():
                 raise Exception(f"Modbus error reading address {address}: {result}")
@@ -54,7 +54,7 @@ class FoxESSModbusClient:
             if not self.client.connected:
                 self.client.connect()
             result = self.client.write_register(
-                address=49203, value=value, slave=self.slave
+                address=49203, value=value, device_id=self.slave
             )
             if result.isError():
                 raise Exception(f"Modbus error writing work mode {value}: {result}")
