@@ -1,0 +1,353 @@
+ # PV1 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV1 Voltage"
+ register_type: holding
+ address: 39070 # official PDF V1.05 #139, I16, V, gain=10
+ unit_of_measurement: "V"
+ device_class: voltage
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV1 Current"
+ register_type: holding
+ address: 39071 # official PDF V1.05 #140, I16, A, gain=100
+ unit_of_measurement: "A"
+ device_class: current
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.01 # different scale from H3! gain=100 -> 0.01
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV1 Power"
+ register_type: holding
+ address: 39279 # official PDF V1.05 #231, I32, W
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R # 32-bit: 39279+39280
+ filters:
+ - multiply: 0.001
+
+ # PV2 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV2 Voltage"
+ register_type: holding
+ address: 39072
+ unit_of_measurement: "V"
+ device_class: voltage
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV2 Current"
+ register_type: holding
+ address: 39073
+ unit_of_measurement: "A"
+ device_class: current
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.01
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV2 Power"
+ register_type: holding
+ address: 39281 # official PDF V1.05 #232
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ # BATERIA — BMS1 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Battery BMS1 SoC"
+ register_type: holding
+ address: 37612 # official PDF V1.05 #27
+ unit_of_measurement: "%"
+ device_class: battery
+ state_class: measurement
+ value_type: U_WORD
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Battery BMS1 Voltage"
+ register_type: holding
+ address: 37609 # official PDF V1.05 #24, gain=10
+ unit_of_measurement: "V"
+ device_class: voltage
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Battery BMS1 Current"
+ register_type: holding
+ address: 37610 # official PDF V1.05 #25, gain=10
+ unit_of_measurement: "A"
+ device_class: current
+ state_class: measurement
+ value_type: S_WORD
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Battery Combined Power"
+ register_type: holding
+ address: 39237 # official PDF V1.05 #207, I32, W
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Battery BMS1 Temperature"
+ register_type: holding
+ address: 37611 # official PDF V1.05 #26
+ unit_of_measurement: "°C"
+ device_class: temperature
+ state_class: measurement
+ value_type: S_WORD
+ filters:
+ - multiply: 0.1
+
+ # BMS2 — only with two battery packs
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Battery BMS2 SoC"
+ register_type: holding
+ address: 38310 # official PDF V1.05 #56
+ unit_of_measurement: "%"
+ device_class: battery
+ state_class: measurement
+ value_type: U_WORD
+
+ # GRID — per-phase voltages R/S/T 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Voltage R"
+ register_type: holding
+ address: 39123 # official PDF V1.05 #151, I16, V, gain=10
+ unit_of_measurement: "V"
+ device_class: voltage
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Voltage S"
+ register_type: holding
+ address: 39124
+ unit_of_measurement: "V"
+ device_class: voltage
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Voltage T"
+ register_type: holding
+ address: 39125
+ unit_of_measurement: "V"
+ device_class: voltage
+ state_class: measurement
+ value_type: U_WORD
+ filters:
+ - multiply: 0.1
+
+ # GRID — per-phase currents (32-bit) 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Current R"
+ register_type: holding
+ address: 39126 # official PDF V1.05 #154, I32, A, gain=1000
+ unit_of_measurement: "A"
+ device_class: current
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Current S"
+ register_type: holding
+ address: 39128
+ unit_of_measurement: "A"
+ device_class: current
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Current T"
+ register_type: holding
+ address: 39130
+ unit_of_measurement: "A"
+ device_class: current
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ # GRID — per-phase power (32-bit) 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Power R"
+ register_type: holding
+ address: 39248 # official PDF V1.05 #214, I32, W
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Power S"
+ register_type: holding
+ address: 39250
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid Power T"
+ register_type: holding
+ address: 39252
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ # Grid CT — net grid exchange 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Grid CT Power"
+ register_type: holding
+ address: 39168 # official PDF V1.05 #181, I32, W, +eksport/-import
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ # LOAD 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Load Power Total"
+ register_type: holding
+ address: 39225 # official PDF V1.05 #200, I32, W
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Load Power R"
+ register_type: holding
+ address: 39219 # official PDF V1.05 #197
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Load Power S"
+ register_type: holding
+ address: 39221
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Load Power T"
+ register_type: holding
+ address: 39223
+ unit_of_measurement: "kW"
+ device_class: power
+ state_class: measurement
+ value_type: S_DWORD_R
+ filters:
+ - multiply: 0.001
+
+ # PV PRODUCTION total / today 
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV Production Today"
+ register_type: holding
+ address: 39604 # official PDF V1.05 (U32, kWh, gain=10)
+ unit_of_measurement: "kWh"
+ device_class: energy
+ state_class: total_increasing
+ value_type: U_DWORD_R
+ filters:
+ - multiply: 0.1
+
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "PV Production Total"
+ register_type: holding
+ address: 39602 # official PDF V1.05 (U32, kWh)
+ unit_of_measurement: "kWh"
+ device_class: energy
+ state_class: total_increasing
+ value_type: U_DWORD_R
+ filters:
+ - multiply: 0.1
+
+# STEROWANIE 
+number:
+ - platform: modbus_controller
+ modbus_controller_id: foxess_inverter
+ name: "Mode Pracy"
+ register_type: holding
+ address: 49203 # official PDF V1.05 #362
+ min_value: 1 # 1=Self Use, 2=Feed-in First, 3=Backup
+ max_value: 7 # 4=Peak Shaving, 6=Force Charge, 7=Force Discharge
+ step: 1
+ mode: box
