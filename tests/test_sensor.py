@@ -1,30 +1,7 @@
-import sys
 import unittest
 from unittest.mock import MagicMock
 
-# Mock homeassistant modules before importing custom components
-class MockSensorEntity:
-    pass
-
-
-class MockCoordinatorEntity:
-    def __init__(self, coordinator):
-        self.coordinator = coordinator
-
-
-mock_ha = MagicMock()
-sys.modules["homeassistant"] = mock_ha
-sys.modules["homeassistant.components"] = MagicMock()
-sys.modules["homeassistant.components.sensor"] = MagicMock(
-    SensorEntity=MockSensorEntity,
-    SensorDeviceClass=MagicMock(),
-    SensorStateClass=MagicMock(),
-)
-sys.modules["homeassistant.const"] = MagicMock()
-sys.modules["homeassistant.helpers"] = MagicMock()
-sys.modules["homeassistant.helpers.update_coordinator"] = MagicMock(
-    CoordinatorEntity=MockCoordinatorEntity
-)
+import tests.hass_mock
 
 from custom_components.foxess_smart.sensor import SENSOR_TYPES, FoxESSSensor
 

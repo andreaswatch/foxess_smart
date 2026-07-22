@@ -1,13 +1,7 @@
-import sys
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-# Mock homeassistant modules before importing custom components
-sys.modules["homeassistant"] = MagicMock()
-sys.modules["homeassistant.core"] = MagicMock()
-sys.modules["homeassistant.config_entries"] = MagicMock()
-sys.modules["homeassistant.helpers"] = MagicMock()
-sys.modules["homeassistant.helpers.update_coordinator"] = MagicMock()
+import tests.hass_mock
 
 from custom_components.foxess_smart import (
     DOMAIN,

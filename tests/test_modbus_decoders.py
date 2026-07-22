@@ -1,5 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
+
+import tests.hass_mock
 from custom_components.foxess_smart.modbus_client import (
     decode_s16,
     decode_u32_be,
