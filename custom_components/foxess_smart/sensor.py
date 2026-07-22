@@ -4,7 +4,10 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
+    RestoreSensor,
 )
+from homeassistant.core import callback
+from homeassistant.util import dt as dt_util
 from homeassistant.const import PERCENTAGE
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -214,6 +217,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
         FoxESSSensor(coordinator, key, info)
         for key, info in SENSOR_TYPES.items()
     ]
+    
+    # Add virtual integral sensors for Energy Dashboard
+    integral_sensors = [
+        ("grid_import_power", "Grid Import Energy"),
+        ("grid_export_power", "Grid Export Energy"),
+        ("battery_charge_power", "Battery Charge Energy"),
+        ("battery_discharge_power", "Battery Discharge Energy"),
+    ]
+    for power_key, name_suffix in integral_sensors:
+        entities.append(FoxESSEnergyIntegralSensor(coordinator, power_key, name_suffix))
+        
     async_add_entities(entities)
 
 
@@ -241,6 +255,66 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
     @property
     def device_info(self):
         """Return device information about this FoxESS inverter."""
+        return {
+            "identifiers": {(DOMAIN, self.coordinator.client.host)},
+            "name": "FoxESS H12 Smart Inverter",
+            "manufacturer": "FoxESS",
+            "model": "H12 Smart",
+        }
+
+
+class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
+    """Virtual sensor computing Energy (kWh) from Power (kW) via Riemann sum."""
+
+    def __init__(self, coordinator, power_key, name_suffix):
+        """Initialize the virtual integral sensor."""
+        super().__init__(coordinator)
+        self._power_key = power_key
+        self._attr_name = f"FoxESS H12 {name_suffix}"
+        self._attr_unique_id = f"foxess_smart_{power_key}_integral_{coordinator.client.host}"
+        self._attr_native_unit_of_measurement = "kWh"
+        self._attr_device_class = SensorDeviceClass.ENERGY
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+        self._state = 0.0
+        self._last_update_time = None
+        self._last_power = None
+
+    async def async_added_to_hass(self):
+        """Restore state when entity is added to HA."""
+        await super().async_added_to_hass()
+        if state := await self.async_get_last_sensor_data():
+            if state.native_value is not None:
+                try:
+                    self._state = float(state.native_value)
+                except ValueError:
+                    self._state = 0.0
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        power = self.coordinator.data.get(self._power_key)
+        now = dt_util.utcnow()
+
+        if power is not None:
+            if self._last_update_time is not None and self._last_power is not None:
+                # Delta time in hours
+                delta_h = (now - self._last_update_time).total_seconds() / 3600.0
+                # Left Riemann sum integration
+                self._state += self._last_power * delta_h
+
+            self._last_power = power
+            self._last_update_time = now
+
+        super()._handle_coordinator_update()
+
+    @property
+    def native_value(self):
+        """Return the integrated state rounded to 3 decimals."""
+        return round(self._state, 3)
+
+    @property
+    def device_info(self):
+        """Return device information."""
         return {
             "identifiers": {(DOMAIN, self.coordinator.client.host)},
             "name": "FoxESS H12 Smart Inverter",

@@ -57,3 +57,8 @@ sys.modules["homeassistant.helpers.update_coordinator"] = update_coordinator_moc
 sys.modules["homeassistant.components"] = components_mock
 sys.modules["homeassistant.components.sensor"] = sensor_mock
 sys.modules["homeassistant.components.select"] = select_mock
+
+sys.modules["homeassistant.util"] = MagicMock()
+class DummyRestoreSensor:
+    pass
+sensor_mock.RestoreSensor = DummyRestoreSensor
