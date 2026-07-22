@@ -1,5 +1,21 @@
+import sys
 import unittest
 from unittest.mock import MagicMock
+
+# Mock homeassistant modules
+sys.modules["homeassistant"] = MagicMock()
+sys.modules["homeassistant.helpers"] = MagicMock()
+
+
+class DummyCoordinator:
+    def __init__(self, *args, **kwargs):
+        pass
+
+
+# Set up mock DataUpdateCoordinator and UpdateFailed
+sys.modules["homeassistant.helpers.update_coordinator"] = MagicMock(
+    DataUpdateCoordinator=DummyCoordinator, UpdateFailed=Exception
+)
 
 from custom_components.foxess_smart.coordinator import FoxESSUpdateCoordinator
 from custom_components.foxess_smart.modbus_client import (

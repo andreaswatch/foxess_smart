@@ -3,26 +3,10 @@
 from datetime import timedelta
 import logging
 
-try:
-    from homeassistant.helpers.update_coordinator import (
-        DataUpdateCoordinator,
-        UpdateFailed,
-    )
-except ImportError:
-
-    class UpdateFailed(Exception):
-        """Dummy UpdateFailed exception when homeassistant is not available."""
-
-        pass
-
-    class DataUpdateCoordinator:
-        """Dummy DataUpdateCoordinator class when homeassistant is not available."""
-
-        def __init__(self, hass, logger, name, update_interval):
-            self.hass = hass
-            self.logger = logger
-            self.name = name
-            self.update_interval = update_interval
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 
 
 from .modbus_client import (
