@@ -37,3 +37,11 @@ PYTHONPATH=. python3 -m unittest discover -s tests
 
 ## Documentation and Modbus Mappings
 Refer to the `docs/` folder for reference register mappings of the FoxESS H12 Modbus registers.
+
+## Disclaimer
+
+**Please note:** This project was completely created by AI based on a provided register mapping file. It is merely a personal project that I had created for my own use.
+
+The original Modbus register mapping source can be found here: [FoxESS ESPHome Modbus Direct Register Reading](https://marklabs.pl/en/foxess-esphome-modbus-direct-register-reading/)
+
+**No liability or warranty is provided.** Use this integration entirely at your own risk. The author assumes no responsibility for any damages, malfunctions, or issues that may arise from using this software.
