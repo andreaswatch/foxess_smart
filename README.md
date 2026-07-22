@@ -1,7 +1,8 @@
 # FoxESS H12 Smart Integration for Home Assistant
 ## Disclaimer
 
-**Please note:** This project was completely created by AI based on a provided register mapping file. It is merely a personal project that I had created for my own use.
+# Note 
+This project was completely created by AI based on a provided register mapping file. It is merely a personal project that I had created for my own use.
 
 The original Modbus register mapping source can be found here: [FoxESS ESPHome Modbus Direct Register Reading](https://marklabs.pl/en/foxess-esphome-modbus-direct-register-reading/)
 
