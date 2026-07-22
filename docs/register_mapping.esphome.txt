@@ -1,3 +1,5 @@
+# Source: https://marklabs.pl/en/foxess-esphome-modbus-direct-register-reading/
+
  # PV1 
  - platform: modbus_controller
  modbus_controller_id: foxess_inverter
