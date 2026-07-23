@@ -50,6 +50,12 @@ SENSOR_TYPES = {
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
+    "pv_power_total": (
+        "PV Power Total",
+        "kW",
+        SensorDeviceClass.POWER,
+        SensorStateClass.MEASUREMENT,
+    ),
     "battery_soc": (
         "Battery BMS1 SoC",
         PERCENTAGE,

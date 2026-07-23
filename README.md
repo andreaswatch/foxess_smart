@@ -18,7 +18,7 @@ This custom component integration allows local monitoring and control of the **F
 - **Easy Setup**: Fully configurable through the Home Assistant UI (Config Flow).
 - **Rich Sensor Data**:
   - **Battery**: Voltage, current, temperature, state of charge (SoC & BMS2 SoC), and power (combined, charge, and discharge).
-  - **Photovoltaik (PV)**: Voltage, current, and power for PV String 1 & 2, along with total and daily energy production.
+  - **Photovoltaik (PV)**: Voltage, current, and power for PV String 1 & 2, total PV power, along with total and daily energy production.
   - **Grid**: Voltage and current per phase (R/S/T), CT power (import/export), and grid power per phase.
   - **Load**: Power consumption per phase (R/S/T) and total load power.
   - **Work Mode**: Current operational work mode.

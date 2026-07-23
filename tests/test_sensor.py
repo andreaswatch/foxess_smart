@@ -8,8 +8,8 @@ from custom_components.foxess_smart.sensor import SENSOR_TYPES, FoxESSSensor
 
 class TestFoxESSSensor(unittest.TestCase):
     def test_sensor_types_count(self):
-        # 28 direct Modbus register sensors + 4 derived unidirectional power sensors = 32
-        self.assertEqual(len(SENSOR_TYPES), 32)
+        # 28 direct Modbus register sensors + 4 derived unidirectional power sensors + 1 total PV power sensor = 33
+        self.assertEqual(len(SENSOR_TYPES), 33)
 
     def test_sensor_entity_properties(self):
         mock_coordinator = MagicMock()

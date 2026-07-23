@@ -104,6 +104,7 @@ class TestCoordinatorParsing(unittest.TestCase):
         self.assertEqual(data["grid_power_t"], 1.305)
         self.assertEqual(data["pv1_power"], 3.675)
         self.assertEqual(data["pv2_power"], 2.88)
+        self.assertEqual(data["pv_power_total"], 6.555)
         self.assertEqual(data["pv_production_total"], 1234.5)
         self.assertEqual(data["pv_production_today"], 25.0)
         self.assertEqual(data["work_mode"], 1)

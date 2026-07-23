@@ -102,6 +102,7 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         pv_p = self.client.read_registers(39279, 4)
         data["pv1_power"] = round(decode_s32_be(pv_p[0:2]) * 0.001, 3)
         data["pv2_power"] = round(decode_s32_be(pv_p[2:4]) * 0.001, 3)
+        data["pv_power_total"] = round(data["pv1_power"] + data["pv2_power"], 3)
 
         # Block 10: PV Energy (39602 - 39605)
         pv_e = self.client.read_registers(39602, 4)
