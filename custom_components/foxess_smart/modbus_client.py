@@ -24,6 +24,13 @@ def decode_u32_le(regs: list) -> int:
     return (regs[1] << 16) | regs[0]
 
 
+def decode_s32_le(regs: list) -> int:
+    """Decode 32-bit signed integer (Little-Endian word order, word swapped, two's complement)."""
+    val = decode_u32_le(regs)
+    return val - 4294967296 if val >= 2147483648 else val
+
+
+
 class FoxESSModbusClient:
     """Wrapper around pymodbus ModbusTcpClient for FoxESS H12 Smart inverter."""
 

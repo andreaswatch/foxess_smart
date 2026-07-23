@@ -7,6 +7,7 @@ from custom_components.foxess_smart.modbus_client import (
     decode_u32_be,
     decode_s32_be,
     decode_u32_le,
+    decode_s32_le,
     FoxESSModbusClient,
 )
 
@@ -32,6 +33,13 @@ class TestModbusDecoders(unittest.TestCase):
         # Word swapped: [low, high] -> high << 16 | low
         self.assertEqual(decode_u32_le([1640, 0]), 1640)
         self.assertEqual(decode_u32_le([0, 1]), 65536)
+
+    def test_decode_s32_le(self):
+        # Word swapped: [low, high]
+        self.assertEqual(decode_s32_le([4962, 0]), 4962)
+        self.assertEqual(decode_s32_le([0, 32768]), -2147483648)
+        self.assertEqual(decode_s32_le([65535, 65535]), -1)
+        self.assertEqual(decode_s32_le([64036, 65535]), -1500)
 
 
 class TestFoxESSModbusClient(unittest.TestCase):

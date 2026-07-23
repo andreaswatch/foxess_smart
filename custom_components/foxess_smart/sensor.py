@@ -305,8 +305,8 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
             if self._last_update_time is not None and self._last_power is not None:
                 # Delta time in hours
                 delta_h = (now - self._last_update_time).total_seconds() / 3600.0
-                # Left Riemann sum integration
-                self._state += self._last_power * delta_h
+                # Trapezoidal Riemann sum integration
+                self._state += 0.5 * (self._last_power + power) * delta_h
 
             self._last_power = power
             self._last_update_time = now
