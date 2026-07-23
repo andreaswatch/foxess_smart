@@ -37,6 +37,34 @@ This custom component integration allows local monitoring and control of the **F
 3. Navigate to **Settings -> Devices & Services -> Add Integration** and search for **FoxESS H12 Smart**.
 4. Enter the Inverter IP address (Host), port (default: 502), Modbus slave ID, and the scan interval.
 
+## Energy Dashboard Configuration
+
+To set up the official Home Assistant **Energy Dashboard** (**Settings -> Dashboards -> Energy**), map the following entities provided by this integration:
+
+| Energy Dashboard Category | Entity | Description |
+| :--- | :--- | :--- |
+| **Solar Production** | `sensor.foxess_h12_pv_production_total` | Total solar production (kWh) |
+| **Grid Consumption (Import)** | `sensor.foxess_h12_grid_import_energy` | Grid import energy (kWh, integral sensor) |
+| **Return to Grid (Export)** | `sensor.foxess_h12_grid_export_energy` | Grid export energy (kWh, integral sensor) |
+| **Battery Charge** | `sensor.foxess_h12_battery_charge_energy` | Energy stored into battery (kWh, integral sensor) |
+| **Battery Discharge** | `sensor.foxess_h12_battery_discharge_energy` | Energy retrieved from battery (kWh, integral sensor) |
+
+> **Note**: The grid import/export and battery charge/discharge energy sensors are automatically computed virtual integral sensors (Riemann sum), so no manual Home Assistant helpers are required.
+
+## Power Flow Card Configuration
+
+If using custom cards like [power-flow-card](https://github.com/LordGuenni/power-flow-card), configure the card using the following entities:
+
+```yaml
+type: custom:power-flow-card
+entities:
+  grid_power: sensor.foxess_h12_grid_ct_power
+  solar_power: sensor.foxess_h12_pv_power_total
+  battery_power: sensor.foxess_h12_battery_combined_power
+  battery_soc: sensor.foxess_h12_battery_bms1_soc
+  load_power: sensor.foxess_h12_load_power_total
+```
+
 ## Testing and Development
 
 The integration is covered by automated unit tests that mock the Home Assistant environment to verify client parsing, decoding, update coordinator logic, and entity properties.
