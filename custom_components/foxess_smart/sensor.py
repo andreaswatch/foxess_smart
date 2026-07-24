@@ -11,7 +11,11 @@ from homeassistant.util import dt as dt_util
 from homeassistant.const import PERCENTAGE
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+import logging
+
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_TYPES = {
     "pv1_voltage": (
@@ -291,7 +295,16 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
         if state := await self.async_get_last_sensor_data():
             if state.native_value is not None:
                 try:
-                    self._state = float(state.native_value)
+                    val = float(state.native_value)
+                    if val > 10000.0:
+                        _LOGGER.warning(
+                            "Resetting corrupt integral state %.2f kWh to 0.0 kWh for %s",
+                            val,
+                            self._attr_name,
+                        )
+                        self._state = 0.0
+                    else:
+                        self._state = val
                 except ValueError:
                     self._state = 0.0
 
