@@ -112,4 +112,10 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         mode = self.client.read_registers(49203, 1)
         data["work_mode"] = mode[0]
 
+        _LOGGER.debug(
+            "Raw Modbus registers: bms1=%s, bms2=%s, pv_vi=%s, grid_vi=%s, grid_ct=%s, load_p=%s, bat_p=%s, grid_p=%s, pv_p=%s, pv_e=%s, mode=%s",
+            bms1, bms2, pv_vi, grid_vi, grid_ct, load_p, bat_p, grid_p, pv_p, pv_e, mode
+        )
+        _LOGGER.debug("Parsed FoxESS H12 inverter data: %s", data)
+
         return data
