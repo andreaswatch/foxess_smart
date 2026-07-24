@@ -4,7 +4,6 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
-    RestoreSensor,
 )
 from homeassistant.core import callback
 from homeassistant.util import dt as dt_util
@@ -273,8 +272,14 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
         }
 
 
-class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
-    """Virtual sensor computing Energy (kWh) from Power (kW) via Riemann sum."""
+class FoxESSEnergyIntegralSensor(CoordinatorEntity, SensorEntity):
+    """Virtual sensor computing Energy (kWh) from Power (kW) via Riemann sum.
+
+    Intentionally does NOT use RestoreSensor - starts at 0.0 on every HA
+    restart. HA's TOTAL_INCREASING state class handles resets correctly and
+    continues accumulating statistics in its own database without needing the
+    in-memory state to persist across restarts.
+    """
 
     def __init__(self, coordinator, power_key, name_suffix):
         """Initialize the virtual integral sensor."""
@@ -288,25 +293,6 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
         self._state = 0.0
         self._last_update_time = None
         self._last_power = None
-
-    async def async_added_to_hass(self):
-        """Restore state when entity is added to HA."""
-        await super().async_added_to_hass()
-        if state := await self.async_get_last_sensor_data():
-            if state.native_value is not None:
-                try:
-                    val = float(state.native_value)
-                    if val > 10000.0:
-                        _LOGGER.warning(
-                            "Resetting corrupt integral state %.2f kWh to 0.0 kWh for %s",
-                            val,
-                            self._attr_name,
-                        )
-                        self._state = 0.0
-                    else:
-                        self._state = val
-                except ValueError:
-                    self._state = 0.0
 
     @callback
     def _handle_coordinator_update(self) -> None:
