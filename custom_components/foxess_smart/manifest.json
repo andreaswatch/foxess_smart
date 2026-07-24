@@ -1,10 +1,14 @@
 {
   "domain": "foxess_smart",
   "name": "FoxESS H12 Smart",
-  "codeowners": ["@andreas"],
+  "codeowners": [
+    "@andreas"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/andreaswatch/foxess_smart",
   "iot_class": "local_polling",
-  "requirements": ["pymodbus>=3.0.0"],
-  "version": "1.0.9"
+  "requirements": [
+    "pymodbus>=3.0.0"
+  ],
+  "version": "1.1.0"
 }

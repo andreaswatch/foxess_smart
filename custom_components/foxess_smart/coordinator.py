@@ -14,6 +14,7 @@ from .modbus_client import (
     decode_s16,
     decode_u32_be,
     decode_s32_be,
+    decode_u32_le,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -97,16 +98,16 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         data["grid_power_s"] = round(decode_s32_be(grid_p[2:4]) * 0.001, 3)
         data["grid_power_t"] = round(decode_s32_be(grid_p[4:6]) * 0.001, 3)
 
-        # Block 9: PV Power (39279 - 39282, 0.1W resolution -> kW, multiplier 0.0001)
+        # Block 9: PV Power (39279 - 39282, W -> kW, multiplier 0.001)
         pv_p = self.client.read_registers(39279, 4)
-        data["pv1_power"] = round(decode_s32_be(pv_p[0:2]) * 0.0001, 3)
-        data["pv2_power"] = round(decode_s32_be(pv_p[2:4]) * 0.0001, 3)
+        data["pv1_power"] = round(decode_s32_be(pv_p[0:2]) * 0.001, 3)
+        data["pv2_power"] = round(decode_s32_be(pv_p[2:4]) * 0.001, 3)
         data["pv_power_total"] = round(data["pv1_power"] + data["pv2_power"], 3)
 
-        # Block 10: PV Energy (39602 - 39605)
+        # Block 10: PV Energy (39602 - 39605, Little-Endian U32_R, multiplier 0.1)
         pv_e = self.client.read_registers(39602, 4)
-        data["pv_production_total"] = round(decode_u32_be(pv_e[0:2]) * 0.1, 1)
-        data["pv_production_today"] = round(decode_u32_be(pv_e[2:4]) * 0.1, 1)
+        data["pv_production_total"] = round(decode_u32_le(pv_e[0:2]) * 0.1, 1)
+        data["pv_production_today"] = round(decode_u32_le(pv_e[2:4]) * 0.1, 1)
 
         # Block 11: Work Mode (49203)
         mode = self.client.read_registers(49203, 1)

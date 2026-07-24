@@ -10,17 +10,24 @@ Example:
 import sys
 import os
 
-# Add custom_components to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from pymodbus.client import ModbusTcpClient
-from custom_components.foxess_smart.modbus_client import (
-    decode_s16,
-    decode_u32_be,
-    decode_s32_be,
-    decode_u32_le,
-    decode_s32_le,
-)
+
+def decode_s16(val: int) -> int:
+    return val - 65536 if val >= 32768 else val
+
+def decode_u32_be(regs: list) -> int:
+    return (regs[0] << 16) | regs[1]
+
+def decode_s32_be(regs: list) -> int:
+    val = decode_u32_be(regs)
+    return val - 4294967296 if val >= 2147483648 else val
+
+def decode_u32_le(regs: list) -> int:
+    return (regs[1] << 16) | regs[0]
+
+def decode_s32_le(regs: list) -> int:
+    val = decode_u32_le(regs)
+    return val - 4294967296 if val >= 2147483648 else val
 
 def main():
     if len(sys.argv) < 2:
