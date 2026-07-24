@@ -4,6 +4,7 @@
   "description": "Home Assistant integration for FoxESS H12 Smart inverters via Modbus TCP",
   "scripts": {
     "test": "python3 -m unittest discover -s tests",
+    "test:live": "python3 scripts/test_inverter_live.py",
     "release": "node scripts/release.js",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
