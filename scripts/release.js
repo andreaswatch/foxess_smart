@@ -78,7 +78,7 @@ function main() {
 
   // 6. Create GitHub Release with zip asset
   console.log('\x1b[32m[6/6] Creating GitHub Release with zip asset...\x1b[0m');
-  run(`gh release create ${newVersion} ${ZIP_NAME} --title "v${newVersion}" --notes "Release v${newVersion}" --clobber`);
+  run(`gh release create ${newVersion} ${ZIP_NAME} --title "v${newVersion}" --notes "Release v${newVersion}"`);
 
   // Cleanup
   if (fs.existsSync(ZIP_NAME)) {
