@@ -1,0 +1,31 @@
+{
+  "name": "foxess_smart",
+  "version": "1.0.9",
+  "description": "Home Assistant integration for FoxESS H12 Smart inverters via Modbus TCP",
+  "scripts": {
+    "test": "python3 -m unittest discover -s tests",
+    "release": "node scripts/release.js",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major",
+    "deploy": "node scripts/release.js patch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreaswatch/foxess_smart.git"
+  },
+  "keywords": [
+    "homeassistant",
+    "foxess",
+    "modbus",
+    "solar",
+    "inverter",
+    "hacs"
+  ],
+  "author": "andreas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreaswatch/foxess_smart/issues"
+  },
+  "homepage": "https://github.com/andreaswatch/foxess_smart#readme"
+}
