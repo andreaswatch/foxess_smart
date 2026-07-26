@@ -1,6 +1,7 @@
 """Sensor platform for FoxESS H12 Smart integration."""
 
 from homeassistant.components.sensor import (
+    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
@@ -272,13 +273,11 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
         }
 
 
-class FoxESSEnergyIntegralSensor(CoordinatorEntity, SensorEntity):
+class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
     """Virtual sensor computing Energy (kWh) from Power (kW) via Riemann sum.
 
-    Intentionally does NOT use RestoreSensor - starts at 0.0 on every HA
-    restart. HA's TOTAL_INCREASING state class handles resets correctly and
-    continues accumulating statistics in its own database without needing the
-    in-memory state to persist across restarts.
+    Uses RestoreSensor to persist state across Home Assistant restarts,
+    ensuring continuity for TOTAL_INCREASING energy statistics.
     """
 
     def __init__(self, coordinator, power_key, name_suffix):
@@ -294,6 +293,16 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, SensorEntity):
         self._last_update_time = None
         self._last_power = None
 
+    async def async_added_to_hass(self):
+        """Restore state when entity is added to Home Assistant."""
+        await super().async_added_to_hass()
+        if state := await self.async_get_last_sensor_data():
+            if state.native_value is not None:
+                try:
+                    self._state = float(state.native_value)
+                except ValueError:
+                    self._state = 0.0
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
@@ -304,8 +313,9 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, SensorEntity):
             if self._last_update_time is not None and self._last_power is not None:
                 # Delta time in hours
                 delta_h = (now - self._last_update_time).total_seconds() / 3600.0
-                # Trapezoidal Riemann sum integration
-                self._state += 0.5 * (self._last_power + power) * delta_h
+                # Trapezoidal Riemann sum integration (bounded 0 < delta_h < 1.0)
+                if 0.0 < delta_h < 1.0:
+                    self._state += 0.5 * (self._last_power + power) * delta_h
 
             self._last_power = power
             self._last_update_time = now

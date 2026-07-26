@@ -17,6 +17,11 @@ class DummyDataUpdateCoordinator:
 class DummyCoordinatorEntity:
     def __init__(self, coordinator, context=None):
         self.coordinator = coordinator
+    def _handle_coordinator_update(self) -> None:
+        pass
+    def async_write_ha_state(self) -> None:
+        pass
+
 
 class DummySelectEntity:
     pass
@@ -27,6 +32,8 @@ class DummySensorEntity:
 # Create mock modules
 ha_mock = MagicMock()
 core_mock = MagicMock()
+core_mock.callback = lambda f: f
+
 config_entries_mock = MagicMock()
 const_mock = MagicMock()
 
@@ -58,7 +65,22 @@ sys.modules["homeassistant.components"] = components_mock
 sys.modules["homeassistant.components.sensor"] = sensor_mock
 sys.modules["homeassistant.components.select"] = select_mock
 
-sys.modules["homeassistant.util"] = MagicMock()
+from datetime import datetime, timezone
+from unittest.mock import AsyncMock
+
+util_mock = MagicMock()
+util_dt_mock = MagicMock()
+util_dt_mock.utcnow.side_effect = lambda: datetime.now(timezone.utc)
+util_mock.dt = util_dt_mock
+sys.modules["homeassistant.util"] = util_mock
+sys.modules["homeassistant.util.dt"] = util_dt_mock
+
 class DummyRestoreSensor:
-    pass
+    async def async_added_to_hass(self):
+        pass
+    async def async_get_last_sensor_data(self):
+        return None
+
 sensor_mock.RestoreSensor = DummyRestoreSensor
+
+
