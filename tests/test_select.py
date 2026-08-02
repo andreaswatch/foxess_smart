@@ -52,7 +52,7 @@ class TestFoxESSWorkModeSelect(unittest.IsolatedAsyncioTestCase):
 
     def test_device_info(self):
         select = FoxESSWorkModeSelect(self.coordinator)
-        dev_info = select.device_info
+        dev_info = select._attr_device_info
         self.assertEqual(dev_info["name"], "FoxESS H12 Smart Inverter")
         self.assertEqual(dev_info["manufacturer"], "FoxESS")
         self.assertEqual(dev_info["model"], "H12 Smart")

@@ -10,6 +10,7 @@ from homeassistant.core import callback
 from homeassistant.util import dt as dt_util
 from homeassistant.const import PERCENTAGE, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.device_registry import DeviceInfo
 
 import logging
 
@@ -259,6 +260,12 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
         self._attr_has_entity_name = True
         if device_class in (SensorDeviceClass.VOLTAGE, SensorDeviceClass.CURRENT, SensorDeviceClass.TEMPERATURE):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.client.host)},
+            name="FoxESS H12 Smart Inverter",
+            manufacturer="FoxESS",
+            model="H12 Smart",
+        )
 
     @property
     def native_value(self):
@@ -267,15 +274,7 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
             return None
         return self.coordinator.data.get(self._key)
 
-    @property
-    def device_info(self):
-        """Return device information about this FoxESS inverter."""
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.client.host)},
-            "name": "FoxESS H12 Smart Inverter",
-            "manufacturer": "FoxESS",
-            "model": "H12 Smart",
-        }
+
 
 
 class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
@@ -295,6 +294,12 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = state_class
         self._attr_has_entity_name = True
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.client.host)},
+            name="FoxESS H12 Smart Inverter",
+            manufacturer="FoxESS",
+            model="H12 Smart",
+        )
         self._state = 0.0
         self._last_update_time = None
         self._last_power = None
@@ -333,12 +338,4 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
         """Return the integrated state rounded to 3 decimals."""
         return round(self._state, 3)
 
-    @property
-    def device_info(self):
-        """Return device information."""
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.client.host)},
-            "name": "FoxESS H12 Smart Inverter",
-            "manufacturer": "FoxESS",
-            "model": "H12 Smart",
-        }
+

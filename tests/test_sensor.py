@@ -33,7 +33,7 @@ class TestFoxESSSensor(unittest.TestCase):
         self.assertEqual(sensor._attr_entity_category, EntityCategory.DIAGNOSTIC)
         self.assertEqual(sensor.native_value, 350.0)
 
-        dev_info = sensor.device_info
+        dev_info = sensor._attr_device_info
         self.assertEqual(dev_info["name"], "FoxESS H12 Smart Inverter")
         self.assertEqual(dev_info["manufacturer"], "FoxESS")
         self.assertEqual(dev_info["model"], "H12 Smart")

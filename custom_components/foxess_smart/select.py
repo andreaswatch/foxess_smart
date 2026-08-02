@@ -2,6 +2,7 @@
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.const import EntityCategory
 
 from .const import DOMAIN, WORK_MODES, WORK_MODES_INV
@@ -24,6 +25,12 @@ class FoxESSWorkModeSelect(CoordinatorEntity, SelectEntity):
         self._attr_options = list(WORK_MODES.keys())
         self._attr_has_entity_name = True
         self._attr_entity_category = EntityCategory.CONFIG
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.client.host)},
+            name="FoxESS H12 Smart Inverter",
+            manufacturer="FoxESS",
+            model="H12 Smart",
+        )
 
     @property
     def current_option(self) -> str:
@@ -45,12 +52,4 @@ class FoxESSWorkModeSelect(CoordinatorEntity, SelectEntity):
             # Force immediately updating coordinator state
             await self.coordinator.async_request_refresh()
 
-    @property
-    def device_info(self):
-        """Return device information about this FoxESS inverter."""
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.client.host)},
-            "name": "FoxESS H12 Smart Inverter",
-            "manufacturer": "FoxESS",
-            "model": "H12 Smart",
-        }
+
