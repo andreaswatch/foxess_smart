@@ -21,7 +21,7 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     """Programmatically configure the Energy Dashboard by replacing existing setup."""
     
     # We delay slightly to ensure the entity registry has fully committed the new entities.
-    await asyncio.sleep(5)
+    await asyncio.sleep(10)
     
     manager = await async_get_manager(hass)
     registry = er.async_get(hass)
@@ -45,7 +45,11 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     if not solar_yield: missing.append("Solar Yield")
     
     if missing:
-        _LOGGER.warning("Could not find entity IDs for %s. Energy dashboard setup aborted.", missing)
+        msg = f"FoxESS Energy Dashboard Setup aborted: Could not find entity IDs for {missing}."
+        _LOGGER.warning(msg)
+        hass.components.persistent_notification.async_create(
+            msg, title="FoxESS Smart - Setup Failed"
+        )
         return
         
     _LOGGER.info("Setting up Energy Dashboard with FoxESS Smart sensors. (Replacing existing setup)")
@@ -77,18 +81,12 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
             type="grid",
             flow_from=[
                 FlowFromGridSourceType(
-                    stat_energy_from=grid_import,
-                    stat_cost=None,
-                    entity_energy_price=None,
-                    number_energy_price=None,
+                    stat_energy_from=grid_import
                 )
             ],
             flow_to=[
                 FlowToGridSourceType(
-                    stat_energy_to=grid_export,
-                    stat_compensation=None,
-                    entity_energy_price=None,
-                    number_energy_price=None,
+                    stat_energy_to=grid_export
                 )
             ],
             cost_adjustment_day=0.0,
@@ -97,6 +95,14 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     
     try:
         await manager.async_update(energy_prefs)
-        _LOGGER.info("Energy Dashboard setup completed successfully.")
+        msg = "Energy Dashboard was successfully configured automatically."
+        _LOGGER.info(msg)
+        hass.components.persistent_notification.async_create(
+            msg, title="FoxESS Smart - Setup Complete"
+        )
     except Exception as e:
-        _LOGGER.error("Failed to update Energy Dashboard: %s", e)
+        msg = f"Failed to update Energy Dashboard: {e}"
+        _LOGGER.error(msg)
+        hass.components.persistent_notification.async_create(
+            msg, title="FoxESS Smart - Setup Failed"
+        )
