@@ -85,7 +85,7 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
         "stat_energy_from": battery_discharge,
     }
     if has_power_config and battery_power:
-        battery_dict["power_config"] = {"type": "standard", "stat_power": battery_power}
+        battery_dict["power_config"] = {"stat_rate": battery_power}
     energy_prefs["energy_sources"].append(battery_dict)
     
     
@@ -109,7 +109,7 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
             "cost_adjustment_day": 0.0,
         }
         if grid_power:
-            grid_dict["power_config"] = {"type": "inverted", "stat_power": grid_power}
+            grid_dict["power_config"] = {"stat_rate_inverted": grid_power}
         energy_prefs["energy_sources"].append(grid_dict)
     else:
         # Legacy Grid Source (HA < 2024.x)
