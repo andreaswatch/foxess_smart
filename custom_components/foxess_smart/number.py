@@ -12,17 +12,17 @@ _LOGGER = logging.getLogger(__name__)
 
 NUMBER_TYPES = {
     "min_soc": {
-        "register": 41009,
+        "register": 46609,
         "min": 10,
         "max": 100,
     },
     "max_soc": {
-        "register": 41010,
+        "register": 46610,
         "min": 10,
         "max": 100,
     },
     "min_soc_on_grid": {
-        "register": 41011,
+        "register": 46611,
         "min": 10,
         "max": 100,
     },

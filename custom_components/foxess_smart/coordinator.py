@@ -66,9 +66,9 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         data["pv2_voltage"] = round(pv_vi[2] * 0.1, 1)
         data["pv2_current"] = round(pv_vi[3] * 0.01, 2)
 
-        # Block 4: SoC Limits (41009 - 41011)
+        # Block 4: SoC Limits (46609 - 46611)
         try:
-            soc_limits = self.client.read_registers(41009, 3)
+            soc_limits = self.client.read_registers(46609, 3)
             data["min_soc"] = soc_limits[0]
             data["max_soc"] = soc_limits[1]
             data["min_soc_on_grid"] = soc_limits[2]
