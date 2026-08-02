@@ -24,10 +24,13 @@ class TestFoxESSSensor(unittest.TestCase):
         pv1_info = SENSOR_TYPES["pv1_voltage"]
         sensor = FoxESSSensor(mock_coordinator, "pv1_voltage", pv1_info)
 
-        self.assertEqual(sensor._attr_name, "FoxESS H12 PV1 Voltage")
+        self.assertEqual(sensor._attr_name, "PV1 Voltage")
         self.assertEqual(
             sensor._attr_unique_id, "foxess_smart_pv1_voltage_192.168.1.100"
         )
+        self.assertTrue(sensor._attr_has_entity_name)
+        from homeassistant.const import EntityCategory
+        self.assertEqual(sensor._attr_entity_category, EntityCategory.DIAGNOSTIC)
         self.assertEqual(sensor.native_value, 350.0)
 
         dev_info = sensor.device_info
@@ -48,8 +51,9 @@ class TestFoxESSSensor(unittest.TestCase):
         mock_coordinator.client.host = "192.168.1.100"
         sensor = FoxESSEnergyIntegralSensor(mock_coordinator, "grid_import_power", "Grid Import Energy")
         
-        self.assertEqual(sensor._attr_name, "FoxESS H12 Grid Import Energy")
+        self.assertEqual(sensor._attr_name, "Grid Import Energy")
         self.assertEqual(sensor._attr_unique_id, "foxess_smart_grid_import_power_integral_192.168.1.100")
+        self.assertTrue(sensor._attr_has_entity_name)
         self.assertEqual(sensor.native_value, 0.0)
 
 from unittest.mock import AsyncMock

@@ -2,6 +2,7 @@
 
 from homeassistant.components.select import SelectEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.const import EntityCategory
 
 from .const import DOMAIN, WORK_MODES, WORK_MODES_INV
 
@@ -18,9 +19,11 @@ class FoxESSWorkModeSelect(CoordinatorEntity, SelectEntity):
     def __init__(self, coordinator):
         """Initialize the work mode select entity."""
         super().__init__(coordinator)
-        self._attr_name = "FoxESS H12 Work Mode"
+        self._attr_name = "Work Mode"
         self._attr_unique_id = f"foxess_smart_work_mode_{coordinator.client.host}"
         self._attr_options = list(WORK_MODES.keys())
+        self._attr_has_entity_name = True
+        self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def current_option(self) -> str:

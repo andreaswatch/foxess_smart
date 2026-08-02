@@ -8,7 +8,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.core import callback
 from homeassistant.util import dt as dt_util
-from homeassistant.const import PERCENTAGE
+from homeassistant.const import PERCENTAGE, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 import logging
@@ -91,67 +91,67 @@ SENSOR_TYPES = {
         SensorStateClass.MEASUREMENT,
     ),
     "battery_combined_power": (
-        "Battery Combined Power",
+        "Battery Charge/Discharge Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_voltage_r": (
-        "Grid Voltage R",
+        "Grid Voltage L1",
         "V",
         SensorDeviceClass.VOLTAGE,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_voltage_s": (
-        "Grid Voltage S",
+        "Grid Voltage L2",
         "V",
         SensorDeviceClass.VOLTAGE,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_voltage_t": (
-        "Grid Voltage T",
+        "Grid Voltage L3",
         "V",
         SensorDeviceClass.VOLTAGE,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_current_r": (
-        "Grid Current R",
+        "Grid Current L1",
         "A",
         SensorDeviceClass.CURRENT,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_current_s": (
-        "Grid Current S",
+        "Grid Current L2",
         "A",
         SensorDeviceClass.CURRENT,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_current_t": (
-        "Grid Current T",
+        "Grid Current L3",
         "A",
         SensorDeviceClass.CURRENT,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_power_r": (
-        "Grid Power R",
+        "Grid Power L1",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_power_s": (
-        "Grid Power S",
+        "Grid Power L2",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_power_t": (
-        "Grid Power T",
+        "Grid Power L3",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_ct_power": (
-        "Grid CT Power",
+        "Grid Import/Export Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
@@ -163,19 +163,19 @@ SENSOR_TYPES = {
         SensorStateClass.MEASUREMENT,
     ),
     "load_power_r": (
-        "Load Power R",
+        "Load Power L1",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "load_power_s": (
-        "Load Power S",
+        "Load Power L2",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "load_power_t": (
-        "Load Power T",
+        "Load Power L3",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
@@ -228,15 +228,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
         for key, info in SENSOR_TYPES.items()
     ]
     
-    # Add virtual integral sensors for Energy Dashboard
+    # Add virtual integral sensors for Energy Dashboard and general dashboard
     integral_sensors = [
-        ("grid_import_power", "Grid Import Energy"),
-        ("grid_export_power", "Grid Export Energy"),
-        ("battery_charge_power", "Battery Charge Energy"),
-        ("battery_discharge_power", "Battery Discharge Energy"),
+        ("grid_import_power", "Grid Import Energy", SensorStateClass.TOTAL_INCREASING),
+        ("grid_export_power", "Grid Export Energy", SensorStateClass.TOTAL_INCREASING),
+        ("battery_charge_power", "Battery Charge Energy", SensorStateClass.TOTAL_INCREASING),
+        ("battery_discharge_power", "Battery Discharge Energy", SensorStateClass.TOTAL_INCREASING),
+        ("grid_ct_power", "Grid Import/Export Energy", SensorStateClass.TOTAL),
+        ("battery_combined_power", "Battery Charge/Discharge Energy", SensorStateClass.TOTAL),
     ]
-    for power_key, name_suffix in integral_sensors:
-        entities.append(FoxESSEnergyIntegralSensor(coordinator, power_key, name_suffix))
+    for power_key, name_suffix, state_class in integral_sensors:
+        entities.append(FoxESSEnergyIntegralSensor(coordinator, power_key, name_suffix, state_class))
         
     async_add_entities(entities)
 
@@ -249,11 +251,14 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._key = key
         name_suffix, unit, device_class, state_class = info
-        self._attr_name = f"FoxESS H12 {name_suffix}"
+        self._attr_name = name_suffix
         self._attr_unique_id = f"foxess_smart_{key}_{coordinator.client.host}"
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+        self._attr_has_entity_name = True
+        if device_class in (SensorDeviceClass.VOLTAGE, SensorDeviceClass.CURRENT, SensorDeviceClass.TEMPERATURE):
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property
     def native_value(self):
@@ -280,15 +285,16 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
     ensuring continuity for TOTAL_INCREASING energy statistics.
     """
 
-    def __init__(self, coordinator, power_key, name_suffix):
+    def __init__(self, coordinator, power_key, name_suffix, state_class=SensorStateClass.TOTAL_INCREASING):
         """Initialize the virtual integral sensor."""
         super().__init__(coordinator)
         self._power_key = power_key
-        self._attr_name = f"FoxESS H12 {name_suffix}"
+        self._attr_name = name_suffix
         self._attr_unique_id = f"foxess_smart_{power_key}_integral_{coordinator.client.host}"
         self._attr_native_unit_of_measurement = "kWh"
         self._attr_device_class = SensorDeviceClass.ENERGY
-        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+        self._attr_state_class = state_class
+        self._attr_has_entity_name = True
         self._state = 0.0
         self._last_update_time = None
         self._last_power = None

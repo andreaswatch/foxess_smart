@@ -18,11 +18,14 @@ class TestFoxESSWorkModeSelect(unittest.IsolatedAsyncioTestCase):
 
     def test_init_and_properties(self):
         select = FoxESSWorkModeSelect(self.coordinator)
-        self.assertEqual(select._attr_name, "FoxESS H12 Work Mode")
+        self.assertEqual(select._attr_name, "Work Mode")
         self.assertEqual(
             select._attr_unique_id, "foxess_smart_work_mode_192.168.1.100"
         )
         self.assertEqual(select._attr_options, list(WORK_MODES.keys()))
+        self.assertTrue(select._attr_has_entity_name)
+        from homeassistant.const import EntityCategory
+        self.assertEqual(select._attr_entity_category, EntityCategory.CONFIG)
 
     def test_current_option(self):
         select = FoxESSWorkModeSelect(self.coordinator)
