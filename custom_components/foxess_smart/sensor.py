@@ -56,7 +56,7 @@ SENSOR_TYPES = {
         SensorStateClass.MEASUREMENT,
     ),
     "pv_power_total": (
-        "PV Power Total",
+        "Solar Power Total",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
@@ -158,7 +158,7 @@ SENSOR_TYPES = {
         SensorStateClass.MEASUREMENT,
     ),
     "load_power_total": (
-        "Load Power Total",
+        "House Consumption Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
@@ -182,26 +182,26 @@ SENSOR_TYPES = {
         SensorStateClass.MEASUREMENT,
     ),
     "pv_production_today": (
-        "PV Production Today",
+        "Solar Yield Today",
         "kWh",
         SensorDeviceClass.ENERGY,
         SensorStateClass.TOTAL_INCREASING,
     ),
     "pv_production_total": (
-        "PV Production Total",
+        "Solar Yield Total",
         "kWh",
         SensorDeviceClass.ENERGY,
         SensorStateClass.TOTAL_INCREASING,
     ),
     # Unidirectional metrics for Riemann Sum integration
     "grid_import_power": (
-        "Grid Import Power",
+        "Grid Consumption Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
     ),
     "grid_export_power": (
-        "Grid Export Power",
+        "Grid Return Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
@@ -231,12 +231,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     
     # Add virtual integral sensors for Energy Dashboard and general dashboard
     integral_sensors = [
-        ("grid_import_power", "Grid Import Energy", SensorStateClass.TOTAL_INCREASING),
-        ("grid_export_power", "Grid Export Energy", SensorStateClass.TOTAL_INCREASING),
-        ("battery_charge_power", "Battery Charge Energy", SensorStateClass.TOTAL_INCREASING),
-        ("battery_discharge_power", "Battery Discharge Energy", SensorStateClass.TOTAL_INCREASING),
-        ("grid_ct_power", "Grid Import/Export Energy", SensorStateClass.TOTAL),
-        ("battery_combined_power", "Battery Charge/Discharge Energy", SensorStateClass.TOTAL),
+        ("grid_import_power", "Grid Consumption Energy", SensorStateClass.TOTAL_INCREASING),
+        ("grid_export_power", "Grid Return Energy", SensorStateClass.TOTAL_INCREASING),
+        ("battery_charge_power", "Battery Energy In", SensorStateClass.TOTAL_INCREASING),
+        ("battery_discharge_power", "Battery Energy Out", SensorStateClass.TOTAL_INCREASING),
+        ("grid_ct_power", "Grid Net Energy", SensorStateClass.TOTAL),
+        ("battery_combined_power", "Battery Net Energy", SensorStateClass.TOTAL),
     ]
     for power_key, name_suffix, state_class in integral_sensors:
         entities.append(FoxESSEnergyIntegralSensor(coordinator, power_key, name_suffix, state_class))
@@ -253,7 +253,7 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
         self._key = key
         name_suffix, unit, device_class, state_class = info
         self._attr_name = name_suffix
-        self._attr_unique_id = f"foxess_smart_{key}_{coordinator.client.host}"
+        self._attr_unique_id = f"foxess_smart_{key}_{coordinator.entry_id}"
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
         self._attr_state_class = state_class
@@ -261,9 +261,9 @@ class FoxESSSensor(CoordinatorEntity, SensorEntity):
         if device_class in (SensorDeviceClass.VOLTAGE, SensorDeviceClass.CURRENT, SensorDeviceClass.TEMPERATURE):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, coordinator.client.host)},
+            identifiers={(DOMAIN, coordinator.entry_id)},
             name="FoxESS H12 Smart Inverter",
-            manufacturer="FoxESS",
+            manufacturer="andreaswatch",
             model="H12 Smart",
         )
 
@@ -289,15 +289,15 @@ class FoxESSEnergyIntegralSensor(CoordinatorEntity, RestoreSensor):
         super().__init__(coordinator)
         self._power_key = power_key
         self._attr_name = name_suffix
-        self._attr_unique_id = f"foxess_smart_{power_key}_integral_{coordinator.client.host}"
+        self._attr_unique_id = f"foxess_smart_{power_key}_integral_{coordinator.entry_id}"
         self._attr_native_unit_of_measurement = "kWh"
         self._attr_device_class = SensorDeviceClass.ENERGY
         self._attr_state_class = state_class
         self._attr_has_entity_name = True
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, coordinator.client.host)},
+            identifiers={(DOMAIN, coordinator.entry_id)},
             name="FoxESS H12 Smart Inverter",
-            manufacturer="FoxESS",
+            manufacturer="andreaswatch",
             model="H12 Smart",
         )
         self._state = 0.0

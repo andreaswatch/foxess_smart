@@ -34,12 +34,13 @@ def decode_s32_le(regs: list) -> int:
 class FoxESSModbusClient:
     """Wrapper around pymodbus ModbusTcpClient for FoxESS H12 Smart inverter."""
 
-    def __init__(self, host: str, port: int, slave: int):
+    def __init__(self, host: str, port: int, slave: int, timeout: int = 3):
         """Initialize the Modbus TCP client wrapper."""
         self.host = host
         self.port = port
         self.slave = slave
-        self.client = ModbusTcpClient(self.host, port=self.port, timeout=3)
+        self.timeout = timeout
+        self.client = ModbusTcpClient(self.host, port=self.port, timeout=self.timeout)
 
     def read_registers(self, address: int, count: int) -> list:
         """Read registers and close immediately to prevent connection lock."""
@@ -59,6 +60,26 @@ class FoxESSModbusClient:
             if result.isError():
                 raise Exception(f"Modbus error reading address {address}: {result}")
             return result.registers
+        finally:
+            self.client.close()
+
+    def write_register(self, address: int, value: int):
+        """Write a single holding register."""
+        try:
+            if not self.client.connected:
+                self.client.connect()
+            try:
+                # pymodbus < 3.x
+                result = self.client.write_register(
+                    address=address, value=value, slave=self.slave
+                )
+            except TypeError:
+                # pymodbus >= 3.x
+                result = self.client.write_register(
+                    address=address, value=value, device_id=self.slave
+                )
+            if result.isError():
+                raise Exception(f"Modbus error writing register {address} with {value}: {result}")
         finally:
             self.client.close()
 

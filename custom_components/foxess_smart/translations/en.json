@@ -8,7 +8,9 @@
           "host": "Host/IP Address",
           "port": "Port",
           "slave_id": "Modbus Device ID (Slave ID)",
-          "scan_interval": "Update Interval (seconds)"
+          "scan_interval": "Update Interval (seconds)",
+          "timeout": "Modbus Timeout (seconds)",
+          "setup_energy": "Setup Energy Dashboard (WARNING: Replaces existing config)"
         }
       }
     },
@@ -16,6 +18,34 @@
       "cannot_connect": "Failed to connect to the inverter.",
       "connection_error": "Connection failed with error: {error_details}",
       "unknown": "Unexpected error"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure FoxESS H12 Smart",
+        "data": {
+          "host": "Host/IP Address",
+          "port": "Port",
+          "slave_id": "Modbus Device ID (Slave ID)",
+          "scan_interval": "Update Interval (seconds)",
+          "timeout": "Modbus Timeout (seconds)",
+          "setup_energy": "Setup Energy Dashboard (WARNING: Replaces existing config)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "number": {
+      "min_soc": {
+        "name": "Min SoC"
+      },
+      "max_soc": {
+        "name": "Max SoC"
+      },
+      "min_soc_on_grid": {
+        "name": "Min SoC (On Grid)"
+      }
     }
   }
 }

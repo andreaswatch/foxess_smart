@@ -1,0 +1,3 @@
+get_all_values:
+  name: Get All Values
+  description: Returns all raw Modbus values provided by the FoxESS Smart integration as JSON data. This can be used in automations to extract all current values at once.

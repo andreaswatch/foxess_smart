@@ -51,9 +51,13 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         data["battery_temp"] = round(decode_s16(bms1[2]) * 0.1, 1)
         data["battery_soc"] = bms1[3]
 
-        # Block 2: BMS2 Info (38310)
-        bms2 = self.client.read_registers(38310, 1)
-        data["battery_bms2_soc"] = bms2[0]
+        # Block 2: BMS2 Info (38310) - Wrapped in try/except for single-battery setups
+        try:
+            bms2 = self.client.read_registers(38310, 1)
+            data["battery_bms2_soc"] = bms2[0]
+        except Exception as ex:
+            _LOGGER.debug("Could not read BMS2 (likely a single battery setup): %s", ex)
+            data["battery_bms2_soc"] = None
 
         # Block 3: PV Voltages/Currents (39070 - 39073)
         pv_vi = self.client.read_registers(39070, 4)
@@ -61,6 +65,15 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         data["pv1_current"] = round(pv_vi[1] * 0.01, 2)
         data["pv2_voltage"] = round(pv_vi[2] * 0.1, 1)
         data["pv2_current"] = round(pv_vi[3] * 0.01, 2)
+
+        # Block 4: SoC Limits (41009 - 41011)
+        try:
+            soc_limits = self.client.read_registers(41009, 3)
+            data["min_soc"] = soc_limits[0]
+            data["max_soc"] = soc_limits[1]
+            data["min_soc_on_grid"] = soc_limits[2]
+        except Exception as ex:
+            _LOGGER.debug("Could not read SoC limits: %s", ex)
 
         # Block 4: Grid Voltages/Currents (39123 - 39131)
         grid_vi = self.client.read_registers(39123, 9)

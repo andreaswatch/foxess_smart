@@ -8,14 +8,21 @@ import homeassistant.helpers.config_validation as cv
 from .const import DOMAIN
 from .modbus_client import FoxESSModbusClient
 
-DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required("host", default="192.168.178.194"): str,
-        vol.Required("port", default=502): int,
-        vol.Required("slave_id", default=247): int,
-        vol.Required("scan_interval", default=15): int,
-    }
-)
+def get_schema(data=None):
+    if data is None:
+        data = {}
+    return vol.Schema(
+        {
+            vol.Required("host", default=data.get("host", "192.168.178.194")): str,
+            vol.Required("port", default=data.get("port", 502)): int,
+            vol.Required("slave_id", default=data.get("slave_id", 247)): int,
+            vol.Required("scan_interval", default=data.get("scan_interval", 15)): int,
+            vol.Required("timeout", default=data.get("timeout", 3)): int,
+            vol.Optional("setup_energy", default=data.get("setup_energy", False)): bool,
+        }
+    )
+
+DATA_SCHEMA = get_schema()
 
 
 class FoxESSSmartConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -35,8 +42,11 @@ class FoxESSSmartConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     user_input["host"],
                     user_input["port"],
                     user_input["slave_id"],
+                    user_input.get("timeout", 3),
                 )
                 if success:
+                    await self.async_set_unique_id(user_input["host"])
+                    self._abort_if_unique_id_configured()
                     return self.async_create_entry(
                         title=f"FoxESS H12 Smart ({user_input['host']})",
                         data=user_input,
@@ -52,11 +62,38 @@ class FoxESSSmartConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders=description_placeholders
         )
 
-    def _test_connection(self, host: str, port: int, slave: int) -> bool:
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Get the options flow for this handler."""
+        return FoxESSSmartOptionsFlowHandler(config_entry)
+
+    def _test_connection(self, host: str, port: int, slave: int, timeout: int = 3) -> bool:
         """Test modbus connection by reading holding register 49203."""
-        client = FoxESSModbusClient(host, port, slave)
+        client = FoxESSModbusClient(host, port, slave, timeout)
         # Attempt to read work mode register as a test
         regs = client.read_registers(49203, 1)
         if not regs:
             raise Exception("No registers returned by inverter.")
         return True
+
+class FoxESSSmartOptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle options flow for FoxESS H12 Smart."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        # Merge data and options
+        data = dict(self.config_entry.data)
+        data.update(self.config_entry.options)
+        
+        return self.async_show_form(
+            step_id="init",
+            data_schema=get_schema(data)
+        )

@@ -1,0 +1,51 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Mit FoxESS H12 Smart verbinden",
+        "description": "Bitte gib die Verbindungsdaten für deinen Modbus TCP Wechselrichter ein.",
+        "data": {
+          "host": "Host/IP-Adresse",
+          "port": "Port",
+          "slave_id": "Modbus Geräte-ID (Slave ID)",
+          "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "timeout": "Modbus Timeout (Sekunden)",
+          "setup_energy": "Energy Dashboard automatisch einrichten (ACHTUNG: Überschreibt vorhandene Konfiguration)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung fehlgeschlagen",
+      "connection_error": "Verbindung fehlgeschlagen mit Fehler: {error_details}",
+      "unknown": "Unerwarteter Fehler"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "FoxESS H12 Smart konfigurieren",
+        "data": {
+          "host": "Host/IP-Adresse",
+          "port": "Port",
+          "slave_id": "Modbus Geräte-ID (Slave ID)",
+          "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "timeout": "Modbus Timeout (Sekunden)",
+          "setup_energy": "Energy Dashboard automatisch einrichten (ACHTUNG: Überschreibt vorhandene Konfiguration)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "number": {
+      "min_soc": {
+        "name": "Min SoC (Notstrom)"
+      },
+      "max_soc": {
+        "name": "Max SoC"
+      },
+      "min_soc_on_grid": {
+        "name": "Min SoC (Netzbetrieb)"
+      }
+    }
+  }
+}

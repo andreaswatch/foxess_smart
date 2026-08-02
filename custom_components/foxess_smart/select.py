@@ -21,14 +21,14 @@ class FoxESSWorkModeSelect(CoordinatorEntity, SelectEntity):
         """Initialize the work mode select entity."""
         super().__init__(coordinator)
         self._attr_name = "Work Mode"
-        self._attr_unique_id = f"foxess_smart_work_mode_{coordinator.client.host}"
+        self._attr_unique_id = f"foxess_smart_work_mode_{coordinator.entry_id}"
         self._attr_options = list(WORK_MODES.keys())
         self._attr_has_entity_name = True
         self._attr_entity_category = EntityCategory.CONFIG
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, coordinator.client.host)},
+            identifiers={(DOMAIN, coordinator.entry_id)},
             name="FoxESS H12 Smart Inverter",
-            manufacturer="FoxESS",
+            manufacturer="andreaswatch",
             model="H12 Smart",
         )
 
