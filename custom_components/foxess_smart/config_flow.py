@@ -19,6 +19,8 @@ def get_schema(data=None):
             vol.Required("scan_interval", default=data.get("scan_interval", 15)): int,
             vol.Required("timeout", default=data.get("timeout", 3)): int,
             vol.Optional("setup_energy", default=data.get("setup_energy", False)): bool,
+            vol.Optional("energy_import_price", default=data.get("energy_import_price", 0.0)): vol.Coerce(float),
+            vol.Optional("energy_export_price", default=data.get("energy_export_price", 0.0)): vol.Coerce(float),
         }
     )
 

@@ -76,6 +76,13 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
         )
     )
     
+    
+    import_price = entry.options.get("energy_import_price", entry.data.get("energy_import_price", 0.0))
+    export_price = entry.options.get("energy_export_price", entry.data.get("energy_export_price", 0.0))
+    
+    import_price_val = float(import_price) if import_price > 0.0 else None
+    export_price_val = float(export_price) if export_price > 0.0 else None
+
     # Add Grid Source
     energy_prefs["energy_sources"].append(
         {
@@ -85,7 +92,7 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
                     "stat_energy_from": grid_import,
                     "stat_cost": None,
                     "entity_energy_price": None,
-                    "number_energy_price": None,
+                    "number_energy_price": import_price_val,
                 }
             ],
             "flow_to": [
@@ -93,7 +100,7 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
                     "stat_energy_to": grid_export,
                     "stat_compensation": None,
                     "entity_energy_price": None,
-                    "number_energy_price": None,
+                    "number_energy_price": export_price_val,
                 }
             ],
             "cost_adjustment_day": 0.0,
