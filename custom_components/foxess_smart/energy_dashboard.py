@@ -12,6 +12,7 @@ from homeassistant.components.energy.data import (
 )
 import logging
 import asyncio
+from homeassistant.components import persistent_notification
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,8 +48,8 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     if missing:
         msg = f"FoxESS Energy Dashboard Setup aborted: Could not find entity IDs for {missing}."
         _LOGGER.warning(msg)
-        hass.components.persistent_notification.async_create(
-            msg, title="FoxESS Smart - Setup Failed"
+        persistent_notification.async_create(
+            hass, msg, title="FoxESS Smart - Setup Failed"
         )
         return
         
@@ -97,12 +98,12 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
         await manager.async_update(energy_prefs)
         msg = "Energy Dashboard was successfully configured automatically."
         _LOGGER.info(msg)
-        hass.components.persistent_notification.async_create(
-            msg, title="FoxESS Smart - Setup Complete"
+        persistent_notification.async_create(
+            hass, msg, title="FoxESS Smart - Setup Complete"
         )
     except Exception as e:
         msg = f"Failed to update Energy Dashboard: {e}"
         _LOGGER.error(msg)
-        hass.components.persistent_notification.async_create(
-            msg, title="FoxESS Smart - Setup Failed"
+        persistent_notification.async_create(
+            hass, msg, title="FoxESS Smart - Setup Failed"
         )
