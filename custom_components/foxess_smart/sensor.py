@@ -92,7 +92,19 @@ SENSOR_TYPES = {
         SensorStateClass.MEASUREMENT,
     ),
     "battery_combined_power": (
-        "Battery Charge/Discharge Power",
+        "Battery Combined Power",
+        "kW",
+        SensorDeviceClass.POWER,
+        SensorStateClass.MEASUREMENT,
+    ),
+    "battery_charge_power": (
+        "Battery Charge Power",
+        "kW",
+        SensorDeviceClass.POWER,
+        SensorStateClass.MEASUREMENT,
+    ),
+    "battery_discharge_power": (
+        "Battery Discharge Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,
@@ -153,6 +165,18 @@ SENSOR_TYPES = {
     ),
     "grid_ct_power": (
         "Grid Import/Export Power",
+        "kW",
+        SensorDeviceClass.POWER,
+        SensorStateClass.MEASUREMENT,
+    ),
+    "grid_import_power": (
+        "Grid Import Power",
+        "kW",
+        SensorDeviceClass.POWER,
+        SensorStateClass.MEASUREMENT,
+    ),
+    "grid_export_power": (
+        "Grid Export Power",
         "kW",
         SensorDeviceClass.POWER,
         SensorStateClass.MEASUREMENT,

@@ -39,8 +39,10 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     solar_yield = get_entity_id(f"foxess_smart_pv_production_total_{entry.entry_id}")
     
     # Power entity IDs (if available)
-    grid_power = get_entity_id(f"foxess_smart_grid_ct_power_{entry.entry_id}")
-    battery_power = get_entity_id(f"foxess_smart_battery_combined_power_{entry.entry_id}")
+    grid_power_import = get_entity_id(f"foxess_smart_grid_import_power_{entry.entry_id}")
+    grid_power_export = get_entity_id(f"foxess_smart_grid_export_power_{entry.entry_id}")
+    battery_power_charge = get_entity_id(f"foxess_smart_battery_charge_power_{entry.entry_id}")
+    battery_power_discharge = get_entity_id(f"foxess_smart_battery_discharge_power_{entry.entry_id}")
     solar_power = get_entity_id(f"foxess_smart_pv_power_total_{entry.entry_id}")
     
     missing = []
@@ -84,8 +86,11 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
         "stat_energy_to": battery_charge,
         "stat_energy_from": battery_discharge,
     }
-    if has_power_config and battery_power:
-        battery_dict["power_config"] = {"stat_rate": battery_power}
+    if has_power_config and battery_power_discharge and battery_power_charge:
+        battery_dict["power_config"] = {
+            "stat_rate_from": battery_power_discharge,
+            "stat_rate_to": battery_power_charge
+        }
     energy_prefs["energy_sources"].append(battery_dict)
     
     
@@ -108,8 +113,11 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
             "number_energy_price_export": export_price_val,
             "cost_adjustment_day": 0.0,
         }
-        if grid_power:
-            grid_dict["power_config"] = {"stat_rate_inverted": grid_power}
+        if grid_power_import and grid_power_export:
+            grid_dict["power_config"] = {
+                "stat_rate_from": grid_power_import,
+                "stat_rate_to": grid_power_export
+            }
         energy_prefs["energy_sources"].append(grid_dict)
     else:
         # Legacy Grid Source (HA < 2024.x)
