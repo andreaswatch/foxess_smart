@@ -117,18 +117,18 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         data["pv2_power"] = round(decode_s32_be(pv_p[2:4]) * 0.001, 3)
         data["pv_power_total"] = round(data["pv1_power"] + data["pv2_power"], 3)
 
-        # Block 10: Energy Totals (39601 - 39620, Little Endian, multiplier 0.01 for kWh)
+        # Block 10: Energy Totals (39601 - 39620, Big Endian, multiplier 0.01 for kWh)
         energy = self.client.read_registers(39601, 20)
-        # Note: U32_LE takes [low_word, high_word]. FoxESS Modbus is [high, low], but stored at increasing addresses.
-        # So 39601=Low, 39602=High? Actually, ModbusAddressesSpec holding=[39602, 39601] means High=39601, Low=39602 in standard representation?
-        # Wait, decode_u32_le([energy[0], energy[1]]) = (energy[1] << 16) | energy[0]
-        # This matches how FoxESS stores 32-bit values across two registers.
-        data["pv_production_total"] = round(decode_u32_le(energy[0:2]) * 0.01, 2)
-        data["pv_production_today"] = round(decode_u32_le(energy[2:4]) * 0.01, 2)
-        data["battery_charge_total"] = round(decode_u32_le(energy[4:6]) * 0.01, 2)
-        data["battery_discharge_total"] = round(decode_u32_le(energy[8:10]) * 0.01, 2)
-        data["grid_export_total"] = round(decode_u32_le(energy[12:14]) * 0.01, 2)
-        data["grid_import_total"] = round(decode_u32_le(energy[16:18]) * 0.01, 2)
+        # Note: Modbus registers are fetched in order: 39601, 39602, etc.
+        # FoxESS stores the High Word at the lower address and Low Word at the higher address.
+        # decode_u32_be([energy[0], energy[1]]) = (energy[0] << 16) | energy[1]
+        # This correctly parses the 32-bit value.
+        data["pv_production_total"] = round(decode_u32_be(energy[0:2]) * 0.01, 2)
+        data["pv_production_today"] = round(decode_u32_be(energy[2:4]) * 0.01, 2)
+        data["battery_charge_total"] = round(decode_u32_be(energy[4:6]) * 0.01, 2)
+        data["battery_discharge_total"] = round(decode_u32_be(energy[8:10]) * 0.01, 2)
+        data["grid_export_total"] = round(decode_u32_be(energy[12:14]) * 0.01, 2)
+        data["grid_import_total"] = round(decode_u32_be(energy[16:18]) * 0.01, 2)
 
         # Block 11: Work Mode (49203)
         mode = self.client.read_registers(49203, 1)
