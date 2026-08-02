@@ -38,6 +38,11 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     battery_discharge = get_entity_id(f"foxess_smart_battery_discharge_total_{entry.entry_id}")
     solar_yield = get_entity_id(f"foxess_smart_pv_production_total_{entry.entry_id}")
     
+    # Power entity IDs (if available)
+    grid_power = get_entity_id(f"foxess_smart_grid_ct_power_{entry.entry_id}")
+    battery_power = get_entity_id(f"foxess_smart_battery_combined_power_{entry.entry_id}")
+    solar_power = get_entity_id(f"foxess_smart_pv_power_total_{entry.entry_id}")
+    
     missing = []
     if not grid_import: missing.append("Grid Import")
     if not grid_export: missing.append("Grid Export")
@@ -58,54 +63,78 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     # We replace the energy preferences exactly as requested by the user
     energy_prefs = EnergyPreferencesUpdate(energy_sources=[]) # type: ignore
     
+    # Feature detection for Power Sensors (Home Assistant >= 2024.x)
+    from homeassistant.components.energy import data as energy_data
+    has_power_config = "power_config" in getattr(energy_data.BatterySourceType, "__annotations__", {})
+    is_flat_grid = "stat_energy_from" in getattr(energy_data.GridSourceType, "__annotations__", {})
+    
     # Add Solar Source
-    energy_prefs["energy_sources"].append(
-        SolarSourceType(
-            type="solar",
-            stat_energy_from=solar_yield,
-            config_entry_solar_forecast=None,
-        )
-    )
+    solar_dict = {
+        "type": "solar",
+        "stat_energy_from": solar_yield,
+        "config_entry_solar_forecast": None,
+    }
+    if has_power_config and solar_power:
+        solar_dict["stat_rate"] = solar_power
+    energy_prefs["energy_sources"].append(solar_dict)
     
     # Add Battery Source
-    energy_prefs["energy_sources"].append(
-        BatterySourceType(
-            type="battery",
-            stat_energy_to=battery_charge,
-            stat_energy_from=battery_discharge,
-        )
-    )
+    battery_dict = {
+        "type": "battery",
+        "stat_energy_to": battery_charge,
+        "stat_energy_from": battery_discharge,
+    }
+    if has_power_config and battery_power:
+        battery_dict["power_config"] = {"type": "standard", "stat_power": battery_power}
+    energy_prefs["energy_sources"].append(battery_dict)
     
     
     import_price = entry.options.get("energy_import_price", entry.data.get("energy_import_price", 0.0))
     export_price = entry.options.get("energy_export_price", entry.data.get("energy_export_price", 0.0))
-    
     import_price_val = float(import_price) if import_price > 0.0 else None
     export_price_val = float(export_price) if export_price > 0.0 else None
 
     # Add Grid Source
-    energy_prefs["energy_sources"].append(
-        {
+    if is_flat_grid:
+        grid_dict = {
             "type": "grid",
-            "flow_from": [
-                {
-                    "stat_energy_from": grid_import,
-                    "stat_cost": None,
-                    "entity_energy_price": None,
-                    "number_energy_price": import_price_val,
-                }
-            ],
-            "flow_to": [
-                {
-                    "stat_energy_to": grid_export,
-                    "stat_compensation": None,
-                    "entity_energy_price": None,
-                    "number_energy_price": export_price_val,
-                }
-            ],
+            "stat_energy_from": grid_import,
+            "stat_energy_to": grid_export,
+            "stat_cost": None,
+            "entity_energy_price": None,
+            "number_energy_price": import_price_val,
+            "stat_compensation": None,
+            "entity_energy_price_export": None,
+            "number_energy_price_export": export_price_val,
             "cost_adjustment_day": 0.0,
         }
-    )
+        if grid_power:
+            grid_dict["power_config"] = {"type": "inverted", "stat_power": grid_power}
+        energy_prefs["energy_sources"].append(grid_dict)
+    else:
+        # Legacy Grid Source (HA < 2024.x)
+        energy_prefs["energy_sources"].append(
+            {
+                "type": "grid",
+                "flow_from": [
+                    {
+                        "stat_energy_from": grid_import,
+                        "stat_cost": None,
+                        "entity_energy_price": None,
+                        "number_energy_price": import_price_val,
+                    }
+                ],
+                "flow_to": [
+                    {
+                        "stat_energy_to": grid_export,
+                        "stat_compensation": None,
+                        "entity_energy_price": None,
+                        "number_energy_price": export_price_val,
+                    }
+                ],
+                "cost_adjustment_day": 0.0,
+            }
+        )
     
     try:
         await manager.async_update(energy_prefs)
