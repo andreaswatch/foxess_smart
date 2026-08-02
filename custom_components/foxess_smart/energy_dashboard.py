@@ -78,20 +78,26 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
     
     # Add Grid Source
     energy_prefs["energy_sources"].append(
-        GridSourceType(
-            type="grid",
-            flow_from=[
-                FlowFromGridSourceType(
-                    stat_energy_from=grid_import
-                )
+        {
+            "type": "grid",
+            "flow_from": [
+                {
+                    "stat_energy_from": grid_import,
+                    "stat_cost": None,
+                    "entity_energy_price": None,
+                    "number_energy_price": None,
+                }
             ],
-            flow_to=[
-                FlowToGridSourceType(
-                    stat_energy_to=grid_export
-                )
+            "flow_to": [
+                {
+                    "stat_energy_to": grid_export,
+                    "stat_compensation": None,
+                    "entity_energy_price": None,
+                    "number_energy_price": None,
+                }
             ],
-            cost_adjustment_day=0.0,
-        )
+            "cost_adjustment_day": 0.0,
+        }
     )
     
     try:
