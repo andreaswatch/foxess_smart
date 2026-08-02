@@ -11,7 +11,7 @@ from custom_components.foxess_smart.select import FoxESSWorkModeSelect, async_se
 class TestFoxESSWorkModeSelect(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.coordinator = MagicMock()
-        self.coordinator.client.host = "192.168.1.100"
+        self.coordinator.entry_id = "192.168.1.100"
         self.coordinator.data = {"work_mode": 1}
         self.coordinator.hass = MagicMock()
         self.coordinator.async_request_refresh = AsyncMock()
@@ -54,7 +54,7 @@ class TestFoxESSWorkModeSelect(unittest.IsolatedAsyncioTestCase):
         select = FoxESSWorkModeSelect(self.coordinator)
         dev_info = select._attr_device_info
         self.assertEqual(dev_info["name"], "FoxESS H12 Smart Inverter")
-        self.assertEqual(dev_info["manufacturer"], "FoxESS")
+        self.assertEqual(dev_info["manufacturer"], "andreaswatch")
         self.assertEqual(dev_info["model"], "H12 Smart")
         self.assertEqual(dev_info["identifiers"], {(DOMAIN, "192.168.1.100")})
 

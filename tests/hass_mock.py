@@ -55,6 +55,14 @@ select_mock = MagicMock()
 select_mock.SelectEntity = DummySelectEntity
 components_mock.select = select_mock
 
+energy_mock = MagicMock()
+energy_data_mock = MagicMock()
+energy_mock.data = energy_data_mock
+components_mock.energy = energy_mock
+
+persistent_notification_mock = MagicMock()
+components_mock.persistent_notification = persistent_notification_mock
+
 sys.modules["homeassistant"] = ha_mock
 sys.modules["homeassistant.core"] = core_mock
 sys.modules["homeassistant.config_entries"] = config_entries_mock
@@ -67,6 +75,9 @@ sys.modules["homeassistant.helpers.device_registry"] = device_registry_mock
 sys.modules["homeassistant.components"] = components_mock
 sys.modules["homeassistant.components.sensor"] = sensor_mock
 sys.modules["homeassistant.components.select"] = select_mock
+sys.modules["homeassistant.components.energy"] = energy_mock
+sys.modules["homeassistant.components.energy.data"] = energy_data_mock
+sys.modules["homeassistant.components.persistent_notification"] = persistent_notification_mock
 
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock

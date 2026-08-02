@@ -129,6 +129,27 @@ def main():
             print(f"  PV Production Today BE: {today_be} -> * 0.1 = {today_be * 0.1:.1f} kWh | * 1.0 = {today_be:.1f} kWh")
             print(f"  PV Production Today LE: {today_le} -> * 0.1 = {today_le * 0.1:.1f} kWh | * 1.0 = {today_le:.1f} kWh")
 
+        # Energy Totals (39601 - 39620) - Big-Endian word order, multiplier 0.01
+        energy = read_regs(39601, 20)
+        print("\n=== Energy Totals (39601-39620, BE word order, *0.01) ===")
+        if energy:
+            print(f"Raw registers: {energy}")
+            for name, sl in [
+                ("PV Production Total",         (0, 2)),
+                ("PV Production Today",          (2, 4)),
+                ("Battery Charge Total",         (4, 6)),
+                ("Battery Charge Today",         (6, 8)),
+                ("Battery Discharge Total",      (8, 10)),
+                ("Battery Discharge Today",      (10, 12)),
+                ("Grid Export (Feed-in) Total",  (12, 14)),
+                ("Grid Export (Feed-in) Today",  (14, 16)),
+                ("Grid Import (Consumption) Total", (16, 18)),
+                ("Grid Import (Consumption) Today", (18, 20)),
+            ]:
+                be = decode_u32_be(energy[sl[0]:sl[1]])
+                le = decode_u32_le(energy[sl[0]:sl[1]])
+                print(f"  {name:38s} BE={be:>10d} -> {be * 0.01:>14.2f} kWh | LE={le:>10d} -> {le * 0.01:>14.2f} kWh")
+
     finally:
         client.close()
 

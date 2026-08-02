@@ -19,6 +19,7 @@ class TestInit(unittest.IsolatedAsyncioTestCase):
 
         entry = MagicMock()
         entry.entry_id = "test_entry_123"
+        entry.options = {}
         entry.data = {
             "host": "192.168.1.100",
             "port": 502,

@@ -117,15 +117,14 @@ class FoxESSUpdateCoordinator(DataUpdateCoordinator):
         data["pv2_power"] = round(decode_s32_be(pv_p[2:4]) * 0.001, 3)
         data["pv_power_total"] = round(data["pv1_power"] + data["pv2_power"], 3)
 
-        # Block 10: Energy Totals (39601 - 39620, Little Endian Word Order, multiplier 0.01 for kWh)
+        # Block 10: Energy Totals (39601 - 39620, Big-Endian word order, multiplier 0.01 for kWh)
         energy = self.client.read_registers(39601, 20)
-        # FoxESS stores the Low Word at the lower address and High Word at the higher address for energy totals.
-        data["pv_production_total"] = round(decode_u32_le(energy[0:2]) * 0.01, 2)
-        data["pv_production_today"] = round(decode_u32_le(energy[2:4]) * 0.01, 2)
-        data["battery_charge_total"] = round(decode_u32_le(energy[4:6]) * 0.01, 2)
-        data["battery_discharge_total"] = round(decode_u32_le(energy[8:10]) * 0.01, 2)
-        data["grid_export_total"] = round(decode_u32_le(energy[12:14]) * 0.01, 2)
-        data["grid_import_total"] = round(decode_u32_le(energy[16:18]) * 0.01, 2)
+        data["pv_production_total"] = round(decode_u32_be(energy[0:2]) * 0.01, 2)
+        data["pv_production_today"] = round(decode_u32_be(energy[2:4]) * 0.01, 2)
+        data["battery_charge_total"] = round(decode_u32_be(energy[4:6]) * 0.01, 2)
+        data["battery_discharge_total"] = round(decode_u32_be(energy[8:10]) * 0.01, 2)
+        data["grid_export_total"] = round(decode_u32_be(energy[12:14]) * 0.01, 2)
+        data["grid_import_total"] = round(decode_u32_be(energy[16:18]) * 0.01, 2)
 
         # Block 11: Work Mode (49203)
         mode = self.client.read_registers(49203, 1)

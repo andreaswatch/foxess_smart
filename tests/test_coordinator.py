@@ -48,7 +48,7 @@ class TestCoordinatorParsing(unittest.TestCase):
         )
         mock_client = MagicMock()
 
-        # Map block register addresses to mock returned register arrays
+        # Map block register addresses to mock returned register arrays.
         def mock_read_registers(address, count):
             mapping = {
                 37609: [520, 65516, 250, 85],
@@ -60,7 +60,9 @@ class TestCoordinatorParsing(unittest.TestCase):
                 39237: [65535, 63536],
                 39248: [0, 1300, 0, 1300, 0, 1305],
                 39279: [0, 3675, 0, 2880],
-                39602: [12345, 0, 250, 0],
+                39601: [
+                    2, 514, 1, 240, 3, 1500, 0, 30, 4, 800, 0, 20, 5, 1200, 0, 15, 6, 2500, 0, 18,
+                ],
                 49203: [1],
             }
             if address in mapping:
@@ -105,8 +107,12 @@ class TestCoordinatorParsing(unittest.TestCase):
         self.assertEqual(data["pv1_power"], 3.675)
         self.assertEqual(data["pv2_power"], 2.88)
         self.assertEqual(data["pv_power_total"], 6.555)
-        self.assertEqual(data["pv_production_total"], 1234.5)
-        self.assertEqual(data["pv_production_today"], 25.0)
+        self.assertEqual(data["pv_production_total"], 1315.86)
+        self.assertEqual(data["pv_production_today"], 657.76)
+        self.assertEqual(data["battery_charge_total"], 1981.08)
+        self.assertEqual(data["battery_discharge_total"], 2629.44)
+        self.assertEqual(data["grid_export_total"], 3288.8)
+        self.assertEqual(data["grid_import_total"], 3957.16)
         self.assertEqual(data["work_mode"], 1)
 
 
