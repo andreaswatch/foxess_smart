@@ -31,10 +31,10 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
         return registry.async_get_entity_id("sensor", DOMAIN, unique_id)
         
     # Get entity IDs using their precise unique_ids
-    grid_import = get_entity_id(f"foxess_smart_grid_import_power_integral_{entry.entry_id}")
-    grid_export = get_entity_id(f"foxess_smart_grid_export_power_integral_{entry.entry_id}")
-    battery_charge = get_entity_id(f"foxess_smart_battery_charge_power_integral_{entry.entry_id}")
-    battery_discharge = get_entity_id(f"foxess_smart_battery_discharge_power_integral_{entry.entry_id}")
+    grid_import = get_entity_id(f"foxess_smart_grid_import_total_{entry.entry_id}")
+    grid_export = get_entity_id(f"foxess_smart_grid_export_total_{entry.entry_id}")
+    battery_charge = get_entity_id(f"foxess_smart_battery_charge_total_{entry.entry_id}")
+    battery_discharge = get_entity_id(f"foxess_smart_battery_discharge_total_{entry.entry_id}")
     solar_yield = get_entity_id(f"foxess_smart_pv_production_total_{entry.entry_id}")
     
     missing = []
