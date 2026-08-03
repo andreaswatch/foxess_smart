@@ -8,6 +8,7 @@ from custom_components.foxess_smart import (
     PLATFORMS,
     async_setup_entry,
     async_unload_entry,
+    async_reload_entry,
 )
 
 
@@ -56,6 +57,101 @@ class TestInit(unittest.IsolatedAsyncioTestCase):
         hass.config_entries.async_unload_platforms.assert_called_once_with(
             entry, PLATFORMS
         )
+
+    async def test_async_reload_entry_no_coordinator(self):
+        hass = MagicMock()
+        hass.data = {}
+        hass.config_entries.async_reload = AsyncMock()
+
+        entry = MagicMock()
+        entry.entry_id = "test_entry_123"
+
+        await async_reload_entry(hass, entry)
+        hass.config_entries.async_reload.assert_called_once_with("test_entry_123")
+
+    async def test_async_reload_entry_no_change(self):
+        from datetime import timedelta
+        hass = MagicMock()
+        hass.config_entries.async_reload = AsyncMock()
+
+        mock_coordinator = MagicMock()
+        mock_coordinator.client.host = "192.168.1.100"
+        mock_coordinator.client.port = 502
+        mock_coordinator.client.slave = 1
+        mock_coordinator.client.timeout = 3
+        mock_coordinator.update_interval = timedelta(seconds=10)
+
+        hass.data = {DOMAIN: {"test_entry_123": mock_coordinator}}
+
+        entry = MagicMock()
+        entry.entry_id = "test_entry_123"
+        entry.data = {
+            "host": "192.168.1.100",
+            "port": 502,
+            "slave_id": 1,
+            "scan_interval": 10,
+            "timeout": 3,
+        }
+        entry.options = {}
+
+        await async_reload_entry(hass, entry)
+        hass.config_entries.async_reload.assert_not_called()
+
+    async def test_async_reload_entry_connection_changed(self):
+        from datetime import timedelta
+        hass = MagicMock()
+        hass.config_entries.async_reload = AsyncMock()
+
+        mock_coordinator = MagicMock()
+        mock_coordinator.client.host = "192.168.1.100"
+        mock_coordinator.client.port = 502
+        mock_coordinator.client.slave = 1
+        mock_coordinator.client.timeout = 3
+        mock_coordinator.update_interval = timedelta(seconds=10)
+
+        hass.data = {DOMAIN: {"test_entry_123": mock_coordinator}}
+
+        entry = MagicMock()
+        entry.entry_id = "test_entry_123"
+        entry.data = {
+            "host": "192.168.1.200",  # Changed!
+            "port": 502,
+            "slave_id": 1,
+            "scan_interval": 10,
+            "timeout": 3,
+        }
+        entry.options = {}
+
+        await async_reload_entry(hass, entry)
+        hass.config_entries.async_reload.assert_called_once_with("test_entry_123")
+
+    async def test_async_reload_entry_setup_energy_true(self):
+        from datetime import timedelta
+        hass = MagicMock()
+        hass.config_entries.async_reload = AsyncMock()
+
+        mock_coordinator = MagicMock()
+        mock_coordinator.client.host = "192.168.1.100"
+        mock_coordinator.client.port = 502
+        mock_coordinator.client.slave = 1
+        mock_coordinator.client.timeout = 3
+        mock_coordinator.update_interval = timedelta(seconds=10)
+
+        hass.data = {DOMAIN: {"test_entry_123": mock_coordinator}}
+
+        entry = MagicMock()
+        entry.entry_id = "test_entry_123"
+        entry.data = {
+            "host": "192.168.1.100",
+            "port": 502,
+            "slave_id": 1,
+            "scan_interval": 10,
+            "timeout": 3,
+        }
+        entry.options = {"setup_energy": True}  # Setup energy requested
+
+        await async_reload_entry(hass, entry)
+        hass.config_entries.async_reload.assert_called_once_with("test_entry_123")
 
     async def test_async_unload_entry_failure(self):
         hass = MagicMock()

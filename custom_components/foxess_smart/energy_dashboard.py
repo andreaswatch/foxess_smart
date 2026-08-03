@@ -157,3 +157,12 @@ async def async_setup_energy_dashboard(hass: HomeAssistant, entry: ConfigEntry):
         persistent_notification.async_create(
             hass, msg, title="FoxESS Smart - Setup Failed"
         )
+    finally:
+        # Clear setup_energy flag from config entry
+        new_data = {**entry.data}
+        if "setup_energy" in new_data:
+            new_data["setup_energy"] = False
+        new_options = {**entry.options}
+        if "setup_energy" in new_options:
+            new_options["setup_energy"] = False
+        hass.config_entries.async_update_entry(entry, data=new_data, options=new_options)

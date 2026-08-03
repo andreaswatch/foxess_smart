@@ -58,8 +58,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload config entry."""
-    await hass.config_entries.async_reload(entry.entry_id)
+    """Reload config entry if settings that require it changed."""
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if not coordinator:
+        await hass.config_entries.async_reload(entry.entry_id)
+        return
+
+    # Check if host, port, slave_id, scan_interval, timeout changed
+    host = entry.options.get("host", entry.data.get("host"))
+    port = entry.options.get("port", entry.data.get("port"))
+    slave_id = entry.options.get("slave_id", entry.data.get("slave_id"))
+    scan_interval = entry.options.get("scan_interval", entry.data.get("scan_interval"))
+    timeout = entry.options.get("timeout", entry.data.get("timeout", 3))
+
+    if (
+        host != coordinator.client.host
+        or port != coordinator.client.port
+        or slave_id != coordinator.client.slave
+        or scan_interval != coordinator.update_interval.total_seconds()
+        or timeout != coordinator.client.timeout
+        or entry.options.get("setup_energy")
+        or entry.data.get("setup_energy")
+    ):
+        await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
